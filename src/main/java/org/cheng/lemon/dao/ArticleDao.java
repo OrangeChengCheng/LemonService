@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class ArticleDao {
@@ -60,6 +63,42 @@ public class ArticleDao {
         }
 
         return status > 0 ? true : false;
+    }
+
+
+
+
+
+    //获取文章列表
+    public List getArticleList () {
+
+        List list = new ArrayList();
+
+        Connection connection = null;
+        try {
+            //获取数据库连接
+            connection = MySQLConn.getConnection();
+
+            //mysql查询语句
+            String sql = "SELECT * FROM articles";
+
+            PreparedStatement prst = connection.prepareStatement(sql);
+            //结果集
+            ResultSet rst = prst.executeQuery();
+
+            list = Tools.getToJsonArray(rst);
+
+            MySQLConn.closeResultSet(prst, null);
+        } catch (Exception e) {
+            Logger.recordException(e);
+            System.out.println(e);
+            e.printStackTrace();
+        }finally {
+            MySQLConn.closeConn(connection);
+        }
+
+        return list;
+
     }
 
 

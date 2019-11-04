@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Controller
@@ -27,7 +29,6 @@ public class ArticleController {
 
 
     //创建文章
-    //获取用户列表
     @RequestMapping("/create")
     @ResponseBody
     public String createArticle(@RequestBody RequestParam param, HttpServletRequest request) throws IOException {
@@ -48,6 +49,25 @@ public class ArticleController {
 
 
     //获取文章列表
+    @RequestMapping("/list")
+    @ResponseBody
+    public String getArticleList(@RequestBody RequestParam param, HttpServletRequest request) throws IOException {
 
+        //请求日志
+        Logger.recordRequestOperate(param, request);
+
+        List list = articleService.getArticleList();
+
+        List articles = new ArrayList();
+        for (Object temp : list) {
+            ArticleInfo articleInfo = JSON.parseObject(JSON.toJSONString(temp),ArticleInfo.class);
+            articles.add(articleInfo);
+        }
+
+        ResultData result = new ResultData();
+        result.data = articles;
+
+        return JSON.toJSONString(result);
+    }
 
 }
