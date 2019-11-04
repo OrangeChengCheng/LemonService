@@ -42,6 +42,7 @@ public class UserController {
         UserInfo userInfo = JSON.parseObject(JSON.toJSONString(param.getData()),UserInfo.class);
 
         String result = userService.getLoginService(userInfo);
+
         return result;
     }
 

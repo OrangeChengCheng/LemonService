@@ -49,20 +49,39 @@ public class Logger {
 
     //记录异常
     public static void recordException(Exception e) {
-        StringBuffer sb = new StringBuffer();
+        StringBuffer dao = new StringBuffer();
+        StringBuffer service = new StringBuffer();
+        StringBuffer controller = new StringBuffer();
         StackTraceElement[] st = e.getStackTrace();
         for (StackTraceElement stackTraceElement : st) {
             String exclass = stackTraceElement.getClassName();
-            if (exclass.contains("com.example")) {
+            if (exclass.contains("org.cheng.lemon.dao")) {
                 String method = stackTraceElement.getMethodName();
                 String pathStr = "【类: " + exclass + " 调用 -> "
                         + method + " <- 时在(第" + stackTraceElement.getLineNumber()
                         + "行) 代码处发生异常!异常类型: " + e.getClass().getName() + "】";
-                sb.append(pathStr);
+                dao.append(pathStr);
+            }
+            else if (exclass.contains("org.cheng.lemon.service")) {
+                String method = stackTraceElement.getMethodName();
+                String pathStr = "【类: " + exclass + " 调用 -> "
+                        + method + " <- 时在(第" + stackTraceElement.getLineNumber()
+                        + "行) 代码处发生异常!异常类型: " + e.getClass().getName() + "】";
+                service.append(pathStr);
+            }
+            else if (exclass.contains("org.cheng.lemon.controllers")) {
+                String method = stackTraceElement.getMethodName();
+                String pathStr = "【类: " + exclass + " 调用 -> "
+                        + method + " <- 时在(第" + stackTraceElement.getLineNumber()
+                        + "行) 代码处发生异常!异常类型: " + e.getClass().getName() + "】";
+                controller.append(pathStr);
             }
         }
 
-        String exceptionString = sb.toString();
+        String exceptionDaoString = dao.toString();
+        String exceptionServiceString = service.toString();
+        String exceptionControllerString = controller.toString();
+
         String requestDate = Tools.getCurrentTimeFormat();
         Connection connection = null;
 
@@ -70,17 +89,19 @@ public class Logger {
             //获取数据库连接
             connection = MySQLConn.getConnection();
             //mysql查询语句
-            String sql = "INSERT INTO errorlogs (errorcontent,errordate) VALUES (?,?)";
+            String sql = "INSERT INTO errorlogs (errordate,errordao,errorservice,errorcontroller) VALUES (?,?,?,?)";
 
             PreparedStatement prst = connection.prepareStatement(sql);
-            prst.setString(1, exceptionString);
-            prst.setString(2, requestDate);
+            prst.setString(1, requestDate);
+            prst.setString(2, exceptionDaoString);
+            prst.setString(3, exceptionServiceString);
+            prst.setString(4, exceptionControllerString);
             prst.executeUpdate();
 
             MySQLConn.closeResultSet(prst, null);
 
         }catch (Exception ex) {
-
+            System.out.println(ex);
             ex.printStackTrace();
         }finally {
             MySQLConn.closeConn(connection);
