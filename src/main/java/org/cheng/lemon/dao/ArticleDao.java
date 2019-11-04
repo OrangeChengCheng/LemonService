@@ -80,7 +80,7 @@ public class ArticleDao {
             connection = MySQLConn.getConnection();
 
             //mysql查询语句
-            String sql = "SELECT * FROM articles";
+            String sql = "SELECT * FROM articles WHERE articles.DELETE=0";
 
             PreparedStatement prst = connection.prepareStatement(sql);
             //结果集
